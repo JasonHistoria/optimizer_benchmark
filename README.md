@@ -1,13 +1,38 @@
 # Optimizer Comparison Benchmark
 
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 **Systematic Comparison of Adam-based Optimization Algorithms with Theoretical Analysis**
 
-This repository contains the code for comparing five optimization algorithms (SGD with Momentum, Adam, AdamW, RAdam, and Lion) on CIFAR-10 and CIFAR-100 datasets.
+A comprehensive empirical and theoretical comparison of 5 optimization algorithms on CIFAR-10 and CIFAR-100 datasets, including hypothesis testing and convergence analysis.
 
-## Team Members
+🔗 **Quick Links:** [Experiments Notebook](experiments.ipynb) | [Analysis Notebook](analysis.ipynb) | [Quick Start](QUICKSTART.md) | [Notebooks Guide](NOTEBOOKS_GUIDE.md)
+
+## 🎯 Project Overview
+
+This repository implements a systematic comparison of five optimization algorithms:
+- **SGD with Momentum** - Classical momentum-based optimization
+- **Adam** - Adaptive moment estimation
+- **AdamW** - Adam with decoupled weight decay
+- **RAdam** - Rectified Adam with variance control
+- **Lion** - Sign-based updates for robustness
+
+**Key Features:**
+- ✅ Complete training pipeline with ResNet-18
+- ✅ Jupyter notebooks for Colab/local execution
+- ✅ Statistical analysis with multiple seeds
+- ✅ Hypothesis testing (H1: RAdam stability, H2: AdamW regularization, H3: Lion robustness)
+- ✅ Automated visualization and result export
+- ✅ Reproducible experiments with fixed seeds
+
+## 👥 Team Members
 - Jinghao Liu (jliu63)
 - Xuan Zhang (xuanz24)
 - Yuzheng Zhang (yuzhez4)
+
+**Course:** CSE 493S - University of Washington
 
 ## Project Structure
 
@@ -30,11 +55,18 @@ optimizer_benchmark/
 └── README.md             # This file
 ```
 
-## Installation
+## 🚀 Quick Start
 
-### 1. Clone the repository
+### Option 1: Run on Google Colab (Recommended)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/JasonHistoria/optimizer_benchmark/blob/main/experiments.ipynb)
+
+Click the badge above to run experiments directly in Google Colab with free GPU!
+
+### Option 2: Local Installation
+
+#### 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/JasonHistoria/optimizer_benchmark.git
 cd optimizer_benchmark
 ```
 
