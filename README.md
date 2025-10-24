@@ -1,0 +1,259 @@
+# Optimizer Comparison Benchmark
+
+**Systematic Comparison of Adam-based Optimization Algorithms with Theoretical Analysis**
+
+This repository contains the code for comparing five optimization algorithms (SGD with Momentum, Adam, AdamW, RAdam, and Lion) on CIFAR-10 and CIFAR-100 datasets.
+
+## Team Members
+- Jinghao Liu (jliu63)
+- Xuan Zhang (xuanz24)
+- Yuzheng Zhang (yuzhez4)
+
+## Project Structure
+
+```
+optimizer_benchmark/
+├── src/
+│   ├── train.py          # Main training script
+│   ├── models.py         # Model definitions (ResNet-18, etc.)
+│   ├── data.py           # Data loading utilities
+│   ├── optimizers.py     # Optimizer configurations
+│   └── utils.py          # Logging and visualization utilities
+├── configs/              # Configuration files (if needed)
+├── results/              # Training results (created automatically)
+├── logs/                 # Training logs (created automatically)
+├── plots/                # Visualization outputs (created automatically)
+├── requirements.txt      # Python dependencies
+├── run_single_experiment.py   # Run one experiment
+├── run_all_optimizers.py      # Run all experiments
+├── visualize_results.py       # Generate comparison plots
+└── README.md             # This file
+```
+
+## Installation
+
+### 1. Clone the repository
+```bash
+git clone <repository-url>
+cd optimizer_benchmark
+```
+
+### 2. Create a virtual environment (recommended)
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+## Quick Start
+
+### Run a single experiment
+```bash
+# Train ResNet-18 on CIFAR-10 with Adam
+python run_single_experiment.py --optimizer adam --dataset cifar10 --seed 42
+
+# Train with a different optimizer
+python run_single_experiment.py --optimizer adamw --dataset cifar100 --seed 42
+```
+
+### Run all optimizers (5 optimizers × 3 seeds = 15 experiments)
+```bash
+# Run all optimizers on CIFAR-10
+python run_all_optimizers.py --datasets cifar10 --epochs 200
+
+# Run all optimizers on both datasets
+python run_all_optimizers.py --datasets cifar10 cifar100 --epochs 200
+```
+
+### Visualize results
+```bash
+# Generate comparison plots
+python visualize_results.py --results-dir ./results --output-dir ./plots
+```
+
+## Usage Examples
+
+### Basic Training
+```bash
+python src/train.py \
+  --dataset cifar10 \
+  --optimizer adam \
+  --epochs 200 \
+  --batch-size 128 \
+  --seed 42
+```
+
+### Custom Hyperparameters
+```bash
+python src/train.py \
+  --dataset cifar100 \
+  --optimizer adamw \
+  --lr 0.001 \
+  --weight-decay 0.01 \
+  --epochs 200 \
+  --seed 42
+```
+
+### Hypothesis Testing Experiments
+
+#### H1: RAdam Early Training Stability
+```bash
+# Compare Adam vs RAdam on CIFAR-100 (focus on first 10 epochs)
+python src/train.py --dataset cifar100 --optimizer adam --seed 42
+python src/train.py --dataset cifar100 --optimizer radam --seed 42
+```
+
+#### H2: AdamW Regularization
+```bash
+# Compare Adam vs AdamW with high weight decay
+python src/train.py --dataset cifar10 --optimizer adam --weight-decay 0.001 --seed 42
+python src/train.py --dataset cifar10 --optimizer adamw --weight-decay 0.001 --seed 42
+```
+
+#### H3: Lion Robustness to Label Noise
+```bash
+# Train with 20% label noise
+python src/train.py --dataset cifar10 --optimizer adam --label-noise 0.2 --seed 42
+python src/train.py --dataset cifar10 --optimizer lion --label-noise 0.2 --seed 42
+```
+
+### Limited Data Experiments
+```bash
+# Use only 20% of training data
+python src/train.py --dataset cifar10 --optimizer adam --data-fraction 0.2 --seed 42
+```
+
+## Supported Optimizers
+
+| Optimizer | Default LR | Default Weight Decay | Notes |
+|-----------|------------|---------------------|-------|
+| SGD       | 0.1        | 5e-4                | With momentum=0.9 |
+| Adam      | 0.001      | 0.0                 | Standard Adam |
+| AdamW     | 0.001      | 0.01                | Decoupled weight decay |
+| RAdam     | 0.001      | 0.01                | Rectified Adam |
+| Lion      | 0.0001     | 0.01                | Sign-based updates |
+
+## Output Files
+
+Each experiment creates a directory in `results/` with the following structure:
+```
+results/cifar10_adam_lr0.001_wd0.0_seed42/
+├── config.yaml          # Experiment configuration
+├── metrics.json         # Training metrics (loss, accuracy, etc.)
+├── summary.yaml         # Final results summary
+├── best_model.pth       # Best model checkpoint
+└── final_model.pth      # Final model checkpoint
+```
+
+## Metrics Tracked
+
+- Training loss and accuracy
+- Test loss and accuracy
+- Learning rate per epoch
+- Training time per epoch
+- Best and final test accuracy
+
+## Reproducing Paper Results
+
+### Milestone 1 (Due Nov 6)
+```bash
+# Complete CIFAR-10 experiments (5 optimizers × 3 seeds)
+python run_all_optimizers.py --datasets cifar10 --epochs 200
+
+# Partial CIFAR-100 results (2 optimizers × 2 seeds)
+python run_single_experiment.py --optimizer adam --dataset cifar100 --seed 42
+python run_single_experiment.py --optimizer adam --dataset cifar100 --seed 123
+python run_single_experiment.py --optimizer adamw --dataset cifar100 --seed 42
+python run_single_experiment.py --optimizer adamw --dataset cifar100 --seed 123
+```
+
+### Full Experiments
+```bash
+# All experiments (5 optimizers × 2 datasets × 3 seeds = 30 experiments)
+python run_all_optimizers.py --datasets cifar10 cifar100 --epochs 200
+```
+
+## Tips for Running on Google Colab
+
+```python
+# Install dependencies
+!pip install -r requirements.txt
+
+# Run experiment
+!python src/train.py --dataset cifar10 --optimizer adam --epochs 200
+
+# Download results
+from google.colab import files
+!zip -r results.zip results/
+files.download('results.zip')
+```
+
+## Hardware Requirements
+
+- **CIFAR-10:** ~15-20 minutes per experiment on T4 GPU
+- **CIFAR-100:** ~20-25 minutes per experiment on T4 GPU
+- **RAM:** ~4GB for training
+- **Storage:** ~100MB per experiment for checkpoints
+
+## Computational Budget
+
+- Main experiments: ~11 GPU hours (30 experiments)
+- Hyperparameter sensitivity: ~3 GPU hours (9 experiments)
+- Hypothesis testing: ~1.5 GPU hours (3 experiments)
+- **Total:** ~15.5 GPU hours (feasible with Colab free tier)
+
+## Troubleshooting
+
+### CUDA Out of Memory
+```bash
+# Reduce batch size
+python src/train.py --batch-size 64 ...
+```
+
+### Slow Data Loading
+```bash
+# Reduce number of workers
+python src/train.py --workers 2 ...
+```
+
+### Lion Optimizer Not Available
+```bash
+# Install lion-pytorch
+pip install lion-pytorch
+```
+
+## Citation
+
+If you use this code, please cite our project:
+
+```bibtex
+@misc{optimizer_comparison_2025,
+  title={Systematic Comparison of Adam-based Optimization Algorithms},
+  author={Liu, Jinghao and Zhang, Xuan and Zhang, Yuzheng},
+  year={2025},
+  institution={University of Washington}
+}
+```
+
+## References
+
+1. Kingma, D. P., & Ba, J. (2014). Adam: A method for stochastic optimization. arXiv:1412.6980
+2. Loshchilov, I., & Hutter, F. (2019). Decoupled weight decay regularization. ICLR. arXiv:1711.05101
+3. Liu, L., et al. (2020). On the variance of the adaptive learning rate and beyond. ICLR. arXiv:1908.03265
+4. Chen, X., et al. (2023). Symbolic discovery of optimization algorithms. arXiv:2302.06675
+
+## License
+
+MIT License - see LICENSE file for details
+
+## Contact
+
+For questions or issues, please contact:
+- Jinghao Liu: jliu63@uw.edu
+- Xuan Zhang: xuanz24@uw.edu
+- Yuzheng Zhang: yuzhez4@uw.edu
+

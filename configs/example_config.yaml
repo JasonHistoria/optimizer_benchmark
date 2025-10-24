@@ -1,0 +1,50 @@
+# Example configuration file for experiments
+# You can modify these values or use command line arguments instead
+
+# Dataset
+dataset: cifar10  # cifar10 or cifar100
+augment: true
+data_fraction: 1.0  # Use full dataset
+label_noise: 0.0    # No label noise
+
+# Model
+model: resnet18  # resnet18, resnet34, or resnet50
+
+# Optimizer
+optimizer: adam  # sgd, adam, adamw, radam, or lion
+lr: null         # null means use default for optimizer
+weight_decay: null  # null means use default for optimizer
+
+# Training
+epochs: 200
+batch_size: 128
+scheduler: cosine  # none, cosine, step, or multistep
+seed: 42
+workers: 4
+
+# Output
+save_dir: ./results
+
+# Default hyperparameters for each optimizer:
+#
+# SGD:
+#   lr: 0.1
+#   weight_decay: 5e-4
+#   momentum: 0.9
+#
+# Adam:
+#   lr: 0.001
+#   weight_decay: 0.0
+#
+# AdamW:
+#   lr: 0.001
+#   weight_decay: 0.01
+#
+# RAdam:
+#   lr: 0.001
+#   weight_decay: 0.01
+#
+# Lion:
+#   lr: 0.0001
+#   weight_decay: 0.01
+
