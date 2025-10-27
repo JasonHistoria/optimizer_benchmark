@@ -140,13 +140,16 @@ def get_dataloader(dataset='cifar10', batch_size=128, augment=True,
         print(f"Using {data_fraction*100:.1f}% of training data ({n_subset}/{n_samples} samples)")
     
     # Create dataloaders
+    # Note: pin_memory is not supported on MPS devices
+    use_pin_memory = torch.cuda.is_available()
+    
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True,
-        num_workers=num_workers, pin_memory=True
+        num_workers=num_workers, pin_memory=use_pin_memory
     )
     test_loader = DataLoader(
         test_dataset, batch_size=batch_size, shuffle=False,
-        num_workers=num_workers, pin_memory=True
+        num_workers=num_workers, pin_memory=use_pin_memory
     )
     
     return train_loader, test_loader, num_classes

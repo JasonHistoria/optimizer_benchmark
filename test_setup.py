@@ -28,6 +28,9 @@ def test_setup():
     print(f"✓ CUDA available: {torch.cuda.is_available()}")
     if torch.cuda.is_available():
         print(f"✓ CUDA device: {torch.cuda.get_device_name(0)}")
+    print(f"✓ MPS available: {torch.backends.mps.is_available()}")
+    if torch.backends.mps.is_available():
+        print(f"✓ MPS device: Apple Silicon GPU")
     
     # Check data loading
     print("\n✓ Testing data loading (CIFAR-10)...")
@@ -77,7 +80,12 @@ def test_setup():
     # Quick training test
     print("\n✓ Running quick training test (1 batch, 2 epochs)...")
     try:
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        if torch.cuda.is_available():
+            device = torch.device('cuda')
+        elif torch.backends.mps.is_available():
+            device = torch.device('mps')
+        else:
+            device = torch.device('cpu')
         model = model.to(device)
         optimizer = get_optimizer('adam', model.parameters(), lr=0.001)
         criterion = torch.nn.CrossEntropyLoss()

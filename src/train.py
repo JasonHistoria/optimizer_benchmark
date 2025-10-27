@@ -80,9 +80,17 @@ def validate(model, test_loader, criterion, device):
 def main(args):
     """Main training function."""
     
-    # Set device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
+    # Set device (support CUDA, MPS, and CPU)
+    if torch.cuda.is_available():
+        device = torch.device('cuda')
+        print(f"Using device: CUDA - {torch.cuda.get_device_name(0)}")
+    elif torch.backends.mps.is_available():
+        device = torch.device('mps')
+        print(f"Using device: MPS (Apple Silicon GPU)")
+    else:
+        device = torch.device('cpu')
+        print(f"Using device: CPU")
+    print(f"Device: {device}")
     
     # Set random seed for reproducibility
     if args.seed is not None:
