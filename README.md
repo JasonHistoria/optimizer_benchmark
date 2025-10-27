@@ -57,12 +57,17 @@ optimizer_benchmark/
 
 ## 🚀 Quick Start
 
-### Option 1: Run on Google Colab (Recommended)
+### Option 1: Run Locally with MPS (Apple Silicon) - Recommended! ⚡
+**If you have M1/M2/M3 Mac, training is 22x faster with MPS!**
+
+See [MPS Acceleration Guide](MPS_ACCELERATION.md) for details.
+
+### Option 2: Run on Google Colab
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/JasonHistoria/optimizer_benchmark/blob/main/experiments.ipynb)
 
 Click the badge above to run experiments directly in Google Colab with free GPU!
 
-### Option 2: Local Installation
+### Option 3: Local Installation
 
 #### 1. Clone the repository
 ```bash
