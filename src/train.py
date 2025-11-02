@@ -200,6 +200,10 @@ def main(args):
         if epoch % 10 == 0 or epoch == args.epochs:
             logger.save()
         
+        # Clear cache periodically to help with memory
+        if epoch % 5 == 0 and torch.cuda.is_available():
+            torch.cuda.empty_cache()
+        
         print()
     
     # Training complete

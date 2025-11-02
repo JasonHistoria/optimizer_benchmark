@@ -7,6 +7,7 @@ import torchvision
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Subset
 import numpy as np
+import platform
 
 
 def get_cifar_transforms(dataset='cifar10', augment=True):
@@ -143,13 +144,20 @@ def get_dataloader(dataset='cifar10', batch_size=128, augment=True,
     # Note: pin_memory is not supported on MPS devices
     use_pin_memory = torch.cuda.is_available()
     
+    # On Windows, multiprocessing can cause memory issues, so use 0 workers
+    if platform.system() == 'Windows' and num_workers > 0:
+        print(f"Warning: Windows detected. Setting num_workers to 0 to avoid memory issues.")
+        num_workers = 0
+    
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True,
-        num_workers=num_workers, pin_memory=use_pin_memory
+        num_workers=num_workers, pin_memory=use_pin_memory,
+        persistent_workers=False  # Disable persistent workers to help with memory
     )
     test_loader = DataLoader(
         test_dataset, batch_size=batch_size, shuffle=False,
-        num_workers=num_workers, pin_memory=use_pin_memory
+        num_workers=num_workers, pin_memory=use_pin_memory,
+        persistent_workers=False  # Disable persistent workers to help with memory
     )
     
     return train_loader, test_loader, num_classes
