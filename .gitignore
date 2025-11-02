@@ -36,9 +36,7 @@ data/
 *.zip
 
 # Results and logs
-results/
 logs/
-plots/
 runs/
 checkpoints/
 
