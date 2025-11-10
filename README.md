@@ -27,6 +27,13 @@ This repository implements a systematic comparison of five optimization algorith
 - ✅ Automated visualization and result export
 - ✅ Reproducible experiments with fixed seeds
 
+**🚀 Novel Innovations:**
+- ⭐ **Dynamic Optimizer Switching**: Multi-stage training strategies (Adam→SGD, etc.)
+- ⭐ **Gradient Flow Fingerprints**: Unique visualizations of optimizer behavior
+- ⭐ **Health Report Cards**: Comprehensive 15+ metrics evaluation framework
+
+📚 See [INNOVATIONS_GUIDE.md](INNOVATIONS_GUIDE.md) for details!
+
 ## 👥 Team Members
 - Jinghao Liu (jliu63)
 - Xuan Zhang (xuanz24)
@@ -43,15 +50,26 @@ optimizer_benchmark/
 │   ├── models.py         # Model definitions (ResNet-18, etc.)
 │   ├── data.py           # Data loading utilities
 │   ├── optimizers.py     # Optimizer configurations
-│   └── utils.py          # Logging and visualization utilities
+│   ├── utils.py          # Logging and visualization utilities
+│   ├── optimizer_switching.py        # 🆕 Dynamic switching strategies
+│   ├── train_with_switching.py       # 🆕 Training with switching
+│   ├── gradient_flow_analyzer.py     # 🆕 Gradient tracking & fingerprints
+│   ├── train_with_gradient_tracking.py # 🆕 Training with tracking
+│   └── optimizer_health_metrics.py   # 🆕 Health evaluation framework
 ├── configs/              # Configuration files (if needed)
 ├── results/              # Training results (created automatically)
 ├── logs/                 # Training logs (created automatically)
 ├── plots/                # Visualization outputs (created automatically)
 ├── requirements.txt      # Python dependencies
-├── run_single_experiment.py   # Run one experiment
-├── run_all_optimizers.py      # Run all experiments
-├── visualize_results.py       # Generate comparison plots
+├── run_single_experiment.py      # Run one experiment
+├── run_all_optimizers.py         # Run all experiments
+├── run_switching_experiment.py   # 🆕 Run switching experiments
+├── visualize_results.py          # Generate comparison plots
+├── visualize_switching_results.py # 🆕 Switching visualizations
+├── generate_optimizer_fingerprints.py # 🆕 Create fingerprints
+├── generate_health_report.py     # 🆕 Generate health reports
+├── INNOVATIONS_GUIDE.md          # 🆕 Complete innovations guide
+├── QUICK_DEMO.md                 # 🆕 Quick demo instructions
 └── README.md             # This file
 ```
 
@@ -213,6 +231,54 @@ python run_single_experiment.py --optimizer adamw --dataset cifar100 --seed 123
 # All experiments (5 optimizers × 2 datasets × 3 seeds = 30 experiments)
 python run_all_optimizers.py --datasets cifar10 cifar100 --epochs 200
 ```
+
+## 🚀 Innovative Features
+
+### 1. Dynamic Optimizer Switching
+Switch between optimizers during training to combine their strengths:
+
+```bash
+# List available strategies
+python src/train_with_switching.py --list-strategies
+
+# Run Adam→SGD switching
+python src/train_with_switching.py \
+  --strategy adam_to_sgd \
+  --dataset cifar10 \
+  --epochs 200
+```
+
+See [OPTIMIZER_SWITCHING_GUIDE.md](OPTIMIZER_SWITCHING_GUIDE.md) for details.
+
+### 2. Gradient Flow Fingerprints
+Visualize unique optimizer signatures:
+
+```bash
+# Train with gradient tracking
+python src/train_with_gradient_tracking.py \
+  --optimizer adam \
+  --dataset cifar10
+
+# Generate fingerprints
+python generate_optimizer_fingerprints.py --dataset cifar10
+```
+
+### 3. Optimizer Health Report Cards
+Comprehensive evaluation beyond accuracy:
+
+```bash
+# Generate health report (uses existing results!)
+python generate_health_report.py \
+  --dataset cifar10 \
+  --detailed-report
+```
+
+Output: Multi-dimensional evaluation with 15+ metrics across 5 categories!
+
+📚 **Complete Guide**: [INNOVATIONS_GUIDE.md](INNOVATIONS_GUIDE.md)  
+⚡ **Quick Demo**: [QUICK_DEMO.md](QUICK_DEMO.md)
+
+---
 
 ## Tips for Running on Google Colab
 
