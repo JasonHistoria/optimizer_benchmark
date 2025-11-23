@@ -1,0 +1,14 @@
+augment: true
+batch_size: 128
+data_fraction: 1.0
+dataset: cifar100
+epochs: 100
+label_noise: 0.0
+lr: 0.1
+model: resnet18
+optimizer: sgd
+save_dir: ./results
+scheduler: cosine
+seed: 42
+weight_decay: 0.0005
+workers: 4

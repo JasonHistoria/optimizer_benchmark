@@ -160,7 +160,7 @@ DEFAULT_CONFIGS = {
     },
     'radam': {
         'lr': 0.001,
-        'weight_decay': 0.01,
+        'weight_decay': 0.001,  # Fixed: Reduced from 0.01 to 0.001 for better performance
         'betas': (0.9, 0.999),
         'eps': 1e-8
     },

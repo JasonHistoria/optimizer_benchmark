@@ -1,0 +1,11 @@
+augmentation: strong
+best_accuracy: 76.85
+best_epoch: 98
+epochs_trained: 100
+final_accuracy: 76.74
+label_smoothing: 0.1
+model: wrn-16-4
+optimizer: sgd
+parameters: 2772020
+seed: 456
+total_time: 4370.036234617233

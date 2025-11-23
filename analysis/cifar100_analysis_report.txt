@@ -1,0 +1,77 @@
+====================================================================================================
+CIFAR-100 OPTIMIZER COMPARISON - DETAILED ANALYSIS REPORT
+====================================================================================================
+
+Generated: 2025-11-20 22:08:13
+
+SUMMARY STATISTICS
+----------------------------------------------------------------------------------------------------
+
+ADAM:
+  Number of runs: 3
+  Best Accuracy: 73.84% ¡À 0.14%
+    Range: [73.67%, 74.02%]
+  Final Accuracy: 73.74% ¡À 0.21%
+  Train-Test Gap: -5.23% ¡À 0.21%
+  Best Epoch: 94.7 ¡À 4.5
+  Convergence Epoch: 47.7 ¡À 2.5
+  Training Time: 1.22 ¡À 0.01 hours
+
+ADAMW:
+  Number of runs: 3
+  Best Accuracy: 74.13% ¡À 0.06%
+    Range: [74.05%, 74.20%]
+  Final Accuracy: 73.94% ¡À 0.07%
+  Train-Test Gap: -4.94% ¡À 0.14%
+  Best Epoch: 91.3 ¡À 1.7
+  Convergence Epoch: 46.3 ¡À 0.9
+  Training Time: 1.21 ¡À 0.01 hours
+
+LION:
+  Number of runs: 3
+  Best Accuracy: 72.68% ¡À 0.05%
+    Range: [72.60%, 72.72%]
+  Final Accuracy: 72.52% ¡À 0.07%
+  Train-Test Gap: -5.59% ¡À 0.21%
+  Best Epoch: 92.7 ¡À 3.1
+  Convergence Epoch: 46.7 ¡À 1.9
+  Training Time: 1.30 ¡À 0.00 hours
+
+RADAM:
+  Number of runs: 3
+  Best Accuracy: 29.55% ¡À 0.35%
+    Range: [29.07%, 29.86%]
+  Final Accuracy: 29.33% ¡À 0.34%
+  Train-Test Gap: -6.31% ¡À 0.16%
+  Best Epoch: 96.0 ¡À 2.2
+  Convergence Epoch: 84.0 ¡À 1.4
+  Training Time: 1.30 ¡À 0.04 hours
+
+RADAM-V2:
+  Number of runs: 3
+  Best Accuracy: 73.21% ¡À 0.08%
+    Range: [73.09%, 73.28%]
+  Final Accuracy: 73.13% ¡À 0.10%
+  Train-Test Gap: -10.56% ¡À 0.16%
+  Best Epoch: 97.7 ¡À 1.2
+  Convergence Epoch: 74.3 ¡À 0.5
+  Training Time: 1.32 ¡À 0.01 hours
+
+SGD:
+  Number of runs: 3
+  Best Accuracy: 76.91% ¡À 0.05%
+    Range: [76.85%, 76.96%]
+  Final Accuracy: 76.86% ¡À 0.09%
+  Train-Test Gap: -6.46% ¡À 0.12%
+  Best Epoch: 98.3 ¡À 1.2
+  Convergence Epoch: 82.3 ¡À 0.5
+  Training Time: 1.22 ¡À 0.00 hours
+
+====================================================================================================
+RADAM vs RADAM-V2 COMPARISON
+====================================================================================================
+
+Original RAdam Best Accuracy: 29.55% ¡À 0.35%
+Fixed RAdam-v2 Best Accuracy: 73.21% ¡À 0.08%
+
+Improvement: 43.65% (147.7% relative improvement)

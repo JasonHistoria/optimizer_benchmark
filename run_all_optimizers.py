@@ -13,19 +13,34 @@ from datetime import datetime
 def run_experiment(optimizer, dataset, seed, epochs):
     """Run a single training experiment."""
     
-    cmd = [
-        'python', 'src/train.py',
-        '--dataset', dataset,
-        '--optimizer', optimizer,
-        '--epochs', str(epochs),
-        '--seed', str(seed),
-        '--batch-size', '128',
-        '--model', 'resnet18',
-        '--scheduler', 'cosine'
-    ]
+    # Use optimized script for CIFAR-100, original script for CIFAR-10
+    if dataset == 'cifar100':
+        cmd = [
+            'python', 'train_cifar100_optimized.py',
+            '--optimizer', optimizer,
+            '--epochs', str(epochs),
+            '--seed', str(seed),
+            '--batch-size', '128',
+            '--model', 'wrn-16-4',
+            '--scheduler', 'cosine',
+            '--save-dir', './results'  # Save to results directory
+        ]
+    else:  # cifar10
+        cmd = [
+            'python', 'src/train.py',
+            '--dataset', dataset,
+            '--optimizer', optimizer,
+            '--epochs', str(epochs),
+            '--seed', str(seed),
+            '--batch-size', '128',
+            '--model', 'resnet18',
+            '--scheduler', 'cosine'
+        ]
     
     print(f"\n{'='*60}")
     print(f"Running: {optimizer.upper()} on {dataset.upper()}, seed={seed}")
+    if dataset == 'cifar100':
+        print(f"Using optimized training script: train_cifar100_optimized.py")
     print(f"{'='*60}\n")
     
     start_time = time.time()

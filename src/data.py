@@ -30,12 +30,23 @@ def get_cifar_transforms(dataset='cifar10', augment=True):
         std = [0.2675, 0.2565, 0.2761]
     
     if augment:
-        train_transform = transforms.Compose([
-            transforms.RandomCrop(32, padding=4),
-            transforms.RandomHorizontalFlip(),
-            transforms.ToTensor(),
-            transforms.Normalize(mean, std)
-        ])
+        # Stronger augmentation for CIFAR-100 to reduce overfitting
+        if dataset == 'cifar100':
+            train_transform = transforms.Compose([
+                transforms.RandomCrop(32, padding=4),
+                transforms.RandomHorizontalFlip(),
+                transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.1),
+                transforms.RandomRotation(15),
+                transforms.ToTensor(),
+                transforms.Normalize(mean, std)
+            ])
+        else:
+            train_transform = transforms.Compose([
+                transforms.RandomCrop(32, padding=4),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize(mean, std)
+            ])
     else:
         train_transform = transforms.Compose([
             transforms.ToTensor(),

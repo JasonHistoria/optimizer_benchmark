@@ -146,8 +146,11 @@ def main(args):
     if scheduler:
         print(f"Using {args.scheduler} learning rate scheduler")
     
-    # Loss function
-    criterion = nn.CrossEntropyLoss()
+    # Loss function - use label smoothing for CIFAR-100 to reduce overfitting
+    label_smoothing = 0.1 if args.dataset == 'cifar100' else 0.0
+    criterion = nn.CrossEntropyLoss(label_smoothing=label_smoothing)
+    if label_smoothing > 0:
+        print(f"Using label smoothing: {label_smoothing}")
     
     # Metrics logger
     logger = MetricsLogger(save_dir)

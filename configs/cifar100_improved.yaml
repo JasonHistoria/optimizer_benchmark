@@ -1,0 +1,60 @@
+# Improved configuration for CIFAR-100 to reduce overfitting
+# Based on analysis showing 99% train / 60% test accuracy gap
+
+# Dataset settings
+dataset: cifar100
+augment: true  # Now includes ColorJitter and RandomRotation
+data_fraction: 1.0
+label_noise: 0.0
+
+# Model
+model: resnet18
+
+# Training settings
+epochs: 200  # Increased from 100 - CIFAR-100 needs longer training
+batch_size: 128
+workers: 4
+
+# Scheduler
+scheduler: cosine
+
+# Seed for reproducibility
+seed: 42
+
+# Output
+save_dir: ./results
+
+# Optimizer-specific settings (uncomment the one you want to use)
+
+# SGD - Higher weight decay for better regularization
+optimizer: sgd
+lr: 0.1
+weight_decay: 0.001  # Increased from 0.0005
+
+# # Adam - Add weight decay
+# optimizer: adam
+# lr: 0.001
+# weight_decay: 0.0001  # Small weight decay helps
+
+# # AdamW - Already good defaults
+# optimizer: adamw
+# lr: 0.001
+# weight_decay: 0.01
+
+# # RAdam - Already good defaults
+# optimizer: radam
+# lr: 0.001
+# weight_decay: 0.01
+
+# # Lion - Already good defaults
+# optimizer: lion
+# lr: 0.0001
+# weight_decay: 0.01
+
+# Key improvements applied automatically:
+# 1. Label smoothing (0.1) for CIFAR-100
+# 2. Enhanced data augmentation (ColorJitter + RandomRotation)
+# 3. Longer training (200 epochs)
+# 4. Higher weight decay
+
+

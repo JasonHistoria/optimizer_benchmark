@@ -1,0 +1,15 @@
+augmentation: strong
+batch_size: 128
+early_stop: 0
+epochs: 100
+exp_suffix: -v2
+grad_clip: 0
+label_smoothing: 0.1
+lr: 0.001
+model: wrn-16-4
+optimizer: radam
+save_dir: ./results
+scheduler: cosine
+seed: 42
+weight_decay: 0.001
+workers: 4

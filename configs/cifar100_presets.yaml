@@ -1,0 +1,211 @@
+# Optimized configuration presets for CIFAR-100
+# Use these settings for best performance
+
+# ===================================================================
+# Model Recommendations
+# ===================================================================
+
+models:
+  # Recommended: Fast and accurate
+  wrn-16-4:
+    parameters: 2.7M
+    speed: "Fast"
+    accuracy: "70-73%"
+    epochs: 100
+    description: "Best balance of speed and accuracy"
+  
+  # High capacity
+  wrn-16-8:
+    parameters: 11M
+    speed: "Medium"
+    accuracy: "72-75%"
+    epochs: 100
+    description: "Higher capacity, similar to ResNet-18"
+  
+  # Very fast (for quick experiments)
+  resnet20:
+    parameters: 0.27M
+    speed: "Very Fast"
+    accuracy: "65-68%"
+    epochs: 100
+    description: "Quick experiments, lower accuracy"
+
+# ===================================================================
+# Optimizer Configurations
+# ===================================================================
+
+optimizers:
+  sgd:
+    lr: 0.1
+    weight_decay: 0.0005
+    momentum: 0.9
+    scheduler: cosine
+    expected_accuracy: "68-71%"
+    notes: "Classic baseline, stable but may need longer training"
+  
+  adam:
+    lr: 0.001
+    weight_decay: 0.0001  # Small weight decay helps
+    scheduler: cosine
+    expected_accuracy: "66-69%"
+    notes: "Not recommended for CIFAR-100, use AdamW instead"
+  
+  adamw:
+    lr: 0.001
+    weight_decay: 0.01
+    scheduler: cosine
+    expected_accuracy: "70-73%"
+    notes: "Recommended! Best performance on CIFAR-100"
+  
+  radam:
+    lr: 0.001
+    weight_decay: 0.01
+    scheduler: cosine
+    expected_accuracy: "69-72%"
+    notes: "Stable alternative to AdamW, good early training"
+  
+  lion:
+    lr: 0.0001
+    weight_decay: 0.01
+    scheduler: cosine
+    expected_accuracy: "68-71%"
+    notes: "Memory efficient, robust"
+
+# ===================================================================
+# Training Configuration
+# ===================================================================
+
+training:
+  # Recommended settings
+  batch_size: 128
+  epochs: 100  # 100 is usually enough with strong augmentation
+  workers: 4
+  
+  # Regularization
+  label_smoothing: 0.1
+  augmentation: "strong"  # AutoAugment + Cutout
+  grad_clip: 0  # Optional, set to 1.0 if training is unstable
+  
+  # Early stopping (optional)
+  early_stop: 20  # Stop if no improvement for 20 epochs
+
+# ===================================================================
+# Data Augmentation Levels
+# ===================================================================
+
+augmentation:
+  basic:
+    - RandomCrop(32, padding=4)
+    - RandomHorizontalFlip
+    description: "Minimal augmentation, faster but may overfit"
+  
+  medium:
+    - RandomCrop(32, padding=4)
+    - RandomHorizontalFlip
+    - ColorJitter
+    - RandomRotation(15)
+    description: "Balanced augmentation, good for most cases"
+  
+  strong:
+    - RandomCrop(32, padding=4)
+    - RandomHorizontalFlip
+    - AutoAugment/RandAugment
+    - Cutout(16x16)
+    description: "Maximum regularization, best for CIFAR-100"
+
+# ===================================================================
+# Quick Start Commands
+# ===================================================================
+
+commands:
+  # Quick test (10 epochs)
+  quick_test: |
+    python train_cifar100_optimized.py \
+      --model wrn-16-4 \
+      --optimizer adamw \
+      --epochs 10 \
+      --seed 999
+  
+  # Single experiment (recommended)
+  single_experiment: |
+    python train_cifar100_optimized.py \
+      --model wrn-16-4 \
+      --optimizer adamw \
+      --epochs 100 \
+      --seed 42
+  
+  # All optimizers (5 optimizers × 3 seeds)
+  full_experiments: |
+    python run_cifar100_experiments.py
+  
+  # Custom experiment
+  custom: |
+    python train_cifar100_optimized.py \
+      --model wrn-16-4 \
+      --optimizer adamw \
+      --lr 0.001 \
+      --weight-decay 0.01 \
+      --epochs 100 \
+      --augmentation strong \
+      --label-smoothing 0.1 \
+      --seed 42
+
+# ===================================================================
+# Expected Performance
+# ===================================================================
+
+expected_performance:
+  wrn-16-4:
+    adamw: "70-73%"
+    radam: "69-72%"
+    sgd: "68-71%"
+    lion: "68-71%"
+    adam: "66-69%"
+  
+  wrn-16-8:
+    adamw: "72-75%"
+    radam: "71-74%"
+    sgd: "70-73%"
+  
+  training_gap:
+    good: "< 25%"
+    acceptable: "25-30%"
+    concerning: "> 30%"
+
+# ===================================================================
+# Troubleshooting
+# ===================================================================
+
+troubleshooting:
+  low_accuracy:
+    - "Check label smoothing is enabled (0.1)"
+    - "Verify strong augmentation is used"
+    - "Ensure weight decay is non-zero for Adam-family"
+    - "Try training for more epochs (100-150)"
+  
+  overfitting:
+    - "Increase label smoothing (0.1 -> 0.2)"
+    - "Increase weight decay"
+    - "Use stronger augmentation"
+    - "Add gradient clipping (--grad-clip 1.0)"
+  
+  slow_training:
+    - "Reduce batch size if memory constrained"
+    - "Use resnet20 for quick experiments"
+    - "Check num_workers (4 is usually optimal)"
+    - "Ensure GPU/MPS is being used"
+
+# ===================================================================
+# Comparison with Original ResNet-18 Setup
+# ===================================================================
+
+comparison:
+  metric: [ResNet-18, WRN-16-4]
+  parameters: [11M, 2.7M]
+  training_speed: [1x, 2-3x]
+  expected_accuracy: [68-72%, 70-73%]
+  memory_usage: [High, Medium]
+  optimizer_differences: [Moderate, Clear]
+
+
+
