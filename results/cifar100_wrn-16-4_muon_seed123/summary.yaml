@@ -1,0 +1,11 @@
+augmentation: strong
+best_accuracy: 76.18
+best_epoch: 93
+epochs_trained: 100
+final_accuracy: 75.96
+label_smoothing: 0.1
+model: wrn-16-4
+optimizer: muon
+parameters: 2772020
+seed: 123
+total_time: 1297.3677561283112

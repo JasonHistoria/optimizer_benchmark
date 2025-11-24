@@ -1,0 +1,15 @@
+augmentation: strong
+batch_size: 128
+early_stop: 0
+epochs: 100
+exp_suffix: ''
+grad_clip: 0
+label_smoothing: 0.1
+lr: 0.001
+model: wrn-16-4
+optimizer: muon
+save_dir: ./results_cifar100
+scheduler: cosine
+seed: 123
+weight_decay: 0.01
+workers: 4

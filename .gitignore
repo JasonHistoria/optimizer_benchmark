@@ -40,6 +40,17 @@ logs/
 runs/
 checkpoints/
 
+# Documentation
+HYAK_GUIDE.md
+quick_run.sh
+run_all_hyak.sh
+run_hyak.sh
+setup_hyak.sh
+test_hyak.sh
+test_hyak.sh
+test_muon.py
+
+
 # Jupyter
 .ipynb_checkpoints
 
