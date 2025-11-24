@@ -154,7 +154,7 @@ def main(args):
     print(f"\nOptimizer: {args.optimizer.upper()}")
     optimizer = get_optimizer(
         args.optimizer,
-        model.parameters(),
+        model,
         lr=args.lr,
         weight_decay=args.weight_decay
     )
@@ -298,7 +298,7 @@ if __name__ == '__main__':
     
     # Optimizer arguments
     parser.add_argument('--optimizer', type=str, default='adamw',
-                        choices=['sgd', 'adam', 'adamw', 'radam', 'lion'],
+                        choices=['sgd', 'adam', 'adamw', 'radam', 'lion', 'muon'],
                         help='Optimizer (default: adamw)')
     parser.add_argument('--lr', type=float, default=None,
                         help='Learning rate (uses optimizer default if not specified)')
@@ -350,6 +350,8 @@ if __name__ == '__main__':
                 args.lr = 0.001
             elif args.optimizer == 'lion':
                 args.lr = 0.0001
+            elif args.optimizer == 'muon':
+                args.lr = 0.001 # Adam part LR
         
         if args.weight_decay is None:
             args.weight_decay = default_config['weight_decay']

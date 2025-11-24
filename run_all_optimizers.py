@@ -14,9 +14,10 @@ def run_experiment(optimizer, dataset, seed, epochs):
     """Run a single training experiment."""
     
     # Use optimized script for CIFAR-100, original script for CIFAR-10
+    import sys
     if dataset == 'cifar100':
         cmd = [
-            'python', 'train_cifar100_optimized.py',
+            sys.executable, 'train_cifar100_optimized.py',
             '--optimizer', optimizer,
             '--epochs', str(epochs),
             '--seed', str(seed),
@@ -27,7 +28,7 @@ def run_experiment(optimizer, dataset, seed, epochs):
         ]
     else:  # cifar10
         cmd = [
-            'python', 'src/train.py',
+            sys.executable, 'src/train.py',
             '--dataset', dataset,
             '--optimizer', optimizer,
             '--epochs', str(epochs),
@@ -58,7 +59,7 @@ def run_experiment(optimizer, dataset, seed, epochs):
 def main(args):
     """Run all experiments."""
     
-    optimizers = ['sgd', 'adam', 'adamw', 'radam', 'lion']
+    optimizers = ['sgd', 'adam', 'adamw', 'radam', 'lion', 'muon']
     seeds = [42, 123, 456]  # Three seeds for statistical significance
     
     # Use specified settings
@@ -141,7 +142,7 @@ if __name__ == '__main__':
                         help='Datasets to run experiments on')
     parser.add_argument('--optimizers', type=str, nargs='+',
                         default=None,
-                        choices=['sgd', 'adam', 'adamw', 'radam', 'lion'],
+                        choices=['sgd', 'adam', 'adamw', 'radam', 'lion', 'muon'],
                         help='Optimizers to test (default: all)')
     parser.add_argument('--seeds', type=int, nargs='+',
                         default=None,

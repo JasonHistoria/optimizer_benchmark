@@ -12,7 +12,7 @@ def run_experiment(optimizer, dataset='cifar10', seed=42, epochs=200):
     """Run a single training experiment."""
     
     cmd = [
-        'python', 'src/train.py',
+        sys.executable, 'src/train.py',
         '--dataset', dataset,
         '--optimizer', optimizer,
         '--epochs', str(epochs),
@@ -33,7 +33,7 @@ def run_experiment(optimizer, dataset='cifar10', seed=42, epochs=200):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Run single experiment')
     parser.add_argument('--optimizer', type=str, default='adam',
-                        choices=['sgd', 'adam', 'adamw', 'radam', 'lion'],
+                        choices=['sgd', 'adam', 'adamw', 'radam', 'lion', 'muon'],
                         help='Optimizer to use')
     parser.add_argument('--dataset', type=str, default='cifar10',
                         choices=['cifar10', 'cifar100'],

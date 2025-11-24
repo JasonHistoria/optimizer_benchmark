@@ -12,13 +12,15 @@ except ImportError:
     print("Warning: lion-pytorch not installed. Lion optimizer will not be available.")
 
 
-def get_optimizer(name, model_parameters, lr=0.001, weight_decay=0.0, **kwargs):
+from muon import SingleDeviceMuonWithAuxAdam
+
+def get_optimizer(name, model, lr=0.001, weight_decay=0.0, **kwargs):
     """
     Get optimizer by name with specified hyperparameters.
     
     Args:
-        name: Optimizer name ('sgd', 'adam', 'adamw', 'radam', 'lion')
-        model_parameters: Model parameters to optimize
+        name: Optimizer name ('sgd', 'adam', 'adamw', 'radam', 'lion', 'muon')
+        model: Model to optimize (nn.Module)
         lr: Learning rate
         weight_decay: Weight decay coefficient
         **kwargs: Additional optimizer-specific arguments
@@ -27,6 +29,62 @@ def get_optimizer(name, model_parameters, lr=0.001, weight_decay=0.0, **kwargs):
         PyTorch optimizer
     """
     name = name.lower()
+    
+    # Handle Muon specially as it requires parameter splitting
+    if name == 'muon':
+        # Split parameters into hidden (>=2D) and others
+        # Muon for hidden weights, AdamW for others
+        
+        # Find all parameters
+        hidden_matrix_params = []
+        embedding_params = []
+        head_params = []
+        scalar_params = []
+        
+        for n, p in model.named_parameters():
+            # Identify embedding parameters (usually have 'embed' in name)
+            if "embed" in n:
+                embedding_params.append(p)
+            # Identify head parameters (last layer, usually 'fc' or 'head')
+            elif "fc" in n or "head" in n or "classifier" in n:
+                head_params.append(p)
+            # Identify 2D+ parameters (hidden weights)
+            elif p.ndim >= 2:
+                hidden_matrix_params.append(p)
+            # Everything else (biases, 1D norms, etc)
+            else:
+                scalar_params.append(p)
+        
+        # Configure parameter groups
+        # AdamW groups for non-Muon params
+        adam_groups = [
+            dict(params=head_params, lr=lr), 
+            dict(params=embedding_params, lr=lr), 
+            dict(params=scalar_params, lr=lr)
+        ]
+        # Remove empty groups
+        adam_groups = [g for g in adam_groups if g['params']]
+        
+        # Add AdamW specific defaults for these groups
+        adam_groups = [dict(**g, betas=(0.9, 0.999), eps=1e-8, use_muon=False) for g in adam_groups]
+        
+        # Muon group for hidden weights
+        # Muon typically uses higher LR (e.g. 0.02) and momentum 0.95
+        muon_lr = kwargs.get('muon_lr', 0.02)
+        muon_momentum = kwargs.get('momentum', 0.95)
+        
+        muon_group = dict(
+            params=hidden_matrix_params, 
+            lr=muon_lr, 
+            momentum=muon_momentum, 
+            use_muon=True
+        )
+        
+        param_groups = [*adam_groups, muon_group]
+        return SingleDeviceMuonWithAuxAdam(param_groups)
+
+    # Standard optimizers take model parameters
+    model_parameters = model.parameters()
     
     if name == 'sgd':
         # SGD with momentum (default momentum=0.9)
@@ -168,6 +226,12 @@ DEFAULT_CONFIGS = {
         'lr': 0.0001,
         'weight_decay': 0.01,
         'betas': (0.9, 0.99)
+    },
+    'muon': {
+        'lr': 0.001,     # For the AdamW part
+        'muon_lr': 0.02, # For the Muon part
+        'weight_decay': 0.01,
+        'momentum': 0.95
     }
 }
 

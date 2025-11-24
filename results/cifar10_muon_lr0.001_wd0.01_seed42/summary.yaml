@@ -1,0 +1,9 @@
+best_accuracy: 64.66
+dataset: cifar10
+epochs: 1
+final_accuracy: 64.66
+model: resnet18
+optimizer: muon
+parameters: 11181642
+seed: 42
+total_time: 86.20697617530823
