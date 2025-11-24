@@ -12,12 +12,13 @@ A comprehensive empirical and theoretical comparison of 5 optimization algorithm
 
 ## 🎯 Project Overview
 
-This repository implements a systematic comparison of five optimization algorithms:
+This repository implements a systematic comparison of six optimization algorithms:
 - **SGD with Momentum** - Classical momentum-based optimization
 - **Adam** - Adaptive moment estimation
 - **AdamW** - Adam with decoupled weight decay
 - **RAdam** - Rectified Adam with variance control
 - **Lion** - Sign-based updates for robustness
+- **Muon** - Lightweight second-order optimizer using Newton-Schulz orthogonalization
 
 **Key Features:**
 - ✅ Complete training pipeline with ResNet-18
@@ -28,11 +29,8 @@ This repository implements a systematic comparison of five optimization algorith
 - ✅ Reproducible experiments with fixed seeds
 
 **🚀 Novel Innovations:**
-- ⭐ **Dynamic Optimizer Switching**: Multi-stage training strategies (Adam→SGD, etc.)
-- ⭐ **Gradient Flow Fingerprints**: Unique visualizations of optimizer behavior
-- ⭐ **Health Report Cards**: Comprehensive 15+ metrics evaluation framework
-
-📚 See [INNOVATIONS_GUIDE.md](INNOVATIONS_GUIDE.md) for details!
+- ⭐ **Dynamic Optimizer Switching**: Multi-stage training strategies with fixed or adaptive switching (Adam→SGD, Muon→SGD, etc.)
+- ⭐ **Rate-Based Adaptive Switching**: Automatically switches optimizers when performance velocity plateaus
 
 ## 👥 Team Members
 - Jinghao Liu (jliu63)
@@ -46,31 +44,27 @@ This repository implements a systematic comparison of five optimization algorith
 ```
 optimizer_benchmark/
 ├── src/
-│   ├── train.py          # Main training script
-│   ├── models.py         # Model definitions (ResNet-18, etc.)
-│   ├── data.py           # Data loading utilities
-│   ├── optimizers.py     # Optimizer configurations
-│   ├── utils.py          # Logging and visualization utilities
-│   ├── optimizer_switching.py        # 🆕 Dynamic switching strategies
-│   ├── train_with_switching.py       # 🆕 Training with switching
-│   ├── gradient_flow_analyzer.py     # 🆕 Gradient tracking & fingerprints
-│   ├── train_with_gradient_tracking.py # 🆕 Training with tracking
-│   └── optimizer_health_metrics.py   # 🆕 Health evaluation framework
-├── configs/              # Configuration files (if needed)
-├── results/              # Training results (created automatically)
-├── logs/                 # Training logs (created automatically)
-├── plots/                # Visualization outputs (created automatically)
-├── requirements.txt      # Python dependencies
-├── run_single_experiment.py      # Run one experiment
-├── run_all_optimizers.py         # Run all experiments
-├── run_switching_experiment.py   # 🆕 Run switching experiments
-├── visualize_results.py          # Generate comparison plots
-├── visualize_switching_results.py # 🆕 Switching visualizations
-├── generate_optimizer_fingerprints.py # 🆕 Create fingerprints
-├── generate_health_report.py     # 🆕 Generate health reports
-├── INNOVATIONS_GUIDE.md          # 🆕 Complete innovations guide
-├── QUICK_DEMO.md                 # 🆕 Quick demo instructions
-└── README.md             # This file
+│   ├── train.py              # Main training script
+│   ├── models.py             # Model definitions (ResNet-18, etc.)
+│   ├── models_cifar100.py    # CIFAR-100 specific models (WRN)
+│   ├── data.py               # Data loading utilities
+│   ├── data_cifar100.py      # CIFAR-100 data loading
+│   ├── optimizers.py         # Optimizer configurations
+│   ├── muon.py               # Muon optimizer implementation
+│   ├── optimizer_switching.py # Dynamic switching strategies
+│   └── utils.py              # Logging and visualization utilities
+├── configs/                  # Configuration files
+├── results/                  # Training results (created automatically)
+├── results_switching/        # Switching experiment results
+├── plots/                    # Visualization outputs
+├── requirements.txt          # Python dependencies
+├── run_single_experiment.py  # Run one experiment
+├── run_all_optimizers.py     # Run all experiments
+├── train_cifar100_optimized.py # Optimized CIFAR-100 training
+├── train_switching.py        # Training with optimizer switching
+├── visualize_results.py      # Generate comparison plots
+├── update_1123.md            # Progress update (Nov 23, 2024)
+└── README.md                 # This file
 ```
 
 ## 🚀 Quick Start
@@ -113,9 +107,12 @@ python run_single_experiment.py --optimizer adam --dataset cifar10 --seed 42
 
 # Train with a different optimizer
 python run_single_experiment.py --optimizer adamw --dataset cifar100 --seed 42
+
+# Train with Muon optimizer (uses intelligent parameter splitting)
+python run_single_experiment.py --optimizer muon --dataset cifar10 --seed 42
 ```
 
-### Run all optimizers (5 optimizers × 3 seeds = 15 experiments)
+### Run all optimizers (6 optimizers × 3 seeds = 18 experiments)
 ```bash
 # Run all optimizers on CIFAR-10
 python run_all_optimizers.py --datasets cifar10 --epochs 200
@@ -182,6 +179,17 @@ python src/train.py --dataset cifar10 --optimizer lion --label-noise 0.2 --seed 
 python src/train.py --dataset cifar10 --optimizer adam --data-fraction 0.2 --seed 42
 ```
 
+### Muon Optimizer
+Muon uses intelligent parameter splitting: hidden weights (2D+) are optimized with Muon, while embeddings, heads, and biases use AdamW.
+
+```bash
+# CIFAR-10 with ResNet-18
+python run_single_experiment.py --optimizer muon --dataset cifar10 --seed 42
+
+# CIFAR-100 with WRN-16-4 (recommended)
+python train_cifar100_optimized.py --optimizer muon --seed 42 --epochs 100
+```
+
 ## Supported Optimizers
 
 | Optimizer | Default LR | Default Weight Decay | Notes |
@@ -191,6 +199,7 @@ python src/train.py --dataset cifar10 --optimizer adam --data-fraction 0.2 --see
 | AdamW     | 0.001      | 0.01                | Decoupled weight decay |
 | RAdam     | 0.001      | 0.01                | Rectified Adam |
 | Lion      | 0.0001     | 0.01                | Sign-based updates |
+| Muon      | 0.001      | 0.01                | Muon LR: 0.02 (for hidden weights) |
 
 ## Output Files
 
@@ -216,67 +225,70 @@ results/cifar10_adam_lr0.001_wd0.0_seed42/
 
 ### Milestone 1 (Due Nov 6)
 ```bash
-# Complete CIFAR-10 experiments (5 optimizers × 3 seeds)
+# Complete CIFAR-10 experiments (6 optimizers × 3 seeds)
 python run_all_optimizers.py --datasets cifar10 --epochs 200
 
-# Partial CIFAR-100 results (2 optimizers × 2 seeds)
-python run_single_experiment.py --optimizer adam --dataset cifar100 --seed 42
-python run_single_experiment.py --optimizer adam --dataset cifar100 --seed 123
-python run_single_experiment.py --optimizer adamw --dataset cifar100 --seed 42
-python run_single_experiment.py --optimizer adamw --dataset cifar100 --seed 123
+# CIFAR-100 experiments with WRN-16-4
+python train_cifar100_optimized.py --optimizer adam --seed 42 --epochs 100
+python train_cifar100_optimized.py --optimizer sgd --seed 42 --epochs 100
+python train_cifar100_optimized.py --optimizer muon --seed 42 --epochs 100
 ```
 
 ### Full Experiments
 ```bash
-# All experiments (5 optimizers × 2 datasets × 3 seeds = 30 experiments)
+# All experiments (6 optimizers × 2 datasets × 3 seeds = 36 experiments)
 python run_all_optimizers.py --datasets cifar10 cifar100 --epochs 200
 ```
 
 ## 🚀 Innovative Features
 
 ### 1. Dynamic Optimizer Switching
-Switch between optimizers during training to combine their strengths:
 
+Switch between optimizers during training to combine their strengths. Based on the observation that adaptive optimizers (Adam, Muon) converge quickly in early epochs, while SGD provides more consistent growth in later stages.
+
+**Fixed Switching** (switch at specified epoch):
 ```bash
-# List available strategies
-python src/train_with_switching.py --list-strategies
+# Switch from Adam to SGD at 50% of training
+python train_switching.py \
+  --strategy adam_to_sgd_at_50 \
+  --dataset cifar100 \
+  --epochs 100
 
-# Run Adam→SGD switching
-python src/train_with_switching.py \
-  --strategy adam_to_sgd \
-  --dataset cifar10 \
-  --epochs 200
+# Switch from Muon to SGD (novel combination!)
+python train_switching.py \
+  --strategy muon_to_sgd_at_50 \
+  --dataset cifar100 \
+  --epochs 100
 ```
 
-See [OPTIMIZER_SWITCHING_GUIDE.md](OPTIMIZER_SWITCHING_GUIDE.md) for details.
-
-### 2. Gradient Flow Fingerprints
-Visualize unique optimizer signatures:
-
+**Adaptive Switching** (rate-based, switches when performance velocity plateaus):
 ```bash
-# Train with gradient tracking
-python src/train_with_gradient_tracking.py \
-  --optimizer adam \
-  --dataset cifar10
+# Automatically switch when Adam's accuracy growth slows
+python train_switching.py \
+  --strategy adaptive_adam_to_sgd \
+  --dataset cifar100 \
+  --epochs 100
 
-# Generate fingerprints
-python generate_optimizer_fingerprints.py --dataset cifar10
+# Adaptive Muon switching
+python train_switching.py \
+  --strategy adaptive_muon_to_sgd \
+  --dataset cifar100 \
+  --epochs 100
 ```
 
-### 3. Optimizer Health Report Cards
-Comprehensive evaluation beyond accuracy:
+**Available Strategies:**
+- `adam_to_sgd` / `adam_to_sgd_at_XX` - Fixed switching
+- `adamw_to_sgd` / `adamw_to_sgd_at_XX` - Fixed switching
+- `muon_to_sgd` / `muon_to_sgd_at_XX` - Fixed switching
+- `adaptive_adam_to_sgd` - Rate-based adaptive switching
+- `adaptive_muon_to_sgd` - Rate-based adaptive switching
 
-```bash
-# Generate health report (uses existing results!)
-python generate_health_report.py \
-  --dataset cifar10 \
-  --detailed-report
-```
+**How Adaptive Switching Works:**
+- Monitors test accuracy improvement over the last 5 epochs
+- Triggers switch when improvement < 0.1% (plateau detection)
+- Minimum 10 epochs before allowing switch (prevents premature switching)
 
-Output: Multi-dimensional evaluation with 15+ metrics across 5 categories!
-
-📚 **Complete Guide**: [INNOVATIONS_GUIDE.md](INNOVATIONS_GUIDE.md)  
-⚡ **Quick Demo**: [QUICK_DEMO.md](QUICK_DEMO.md)
+See [update_1123.md](update_1123.md) for detailed implementation notes and experimental plans.
 
 ---
 
@@ -329,6 +341,9 @@ python src/train.py --workers 2 ...
 pip install lion-pytorch
 ```
 
+### Muon Optimizer Notes
+Muon is included in this repository (`src/muon.py`). No additional installation required. The optimizer automatically handles parameter splitting between Muon (for hidden weights) and AdamW (for other parameters).
+
 ## Citation
 
 If you use this code, please cite our project:
@@ -348,6 +363,7 @@ If you use this code, please cite our project:
 2. Loshchilov, I., & Hutter, F. (2019). Decoupled weight decay regularization. ICLR. arXiv:1711.05101
 3. Liu, L., et al. (2020). On the variance of the adaptive learning rate and beyond. ICLR. arXiv:1908.03265
 4. Chen, X., et al. (2023). Symbolic discovery of optimization algorithms. arXiv:2302.06675
+5. Jordan, K., et al. (2024). Muon: An optimizer for hidden layers in neural networks. [GitHub](https://github.com/KellerJordan/Muon)
 
 ## License
 
