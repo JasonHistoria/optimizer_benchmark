@@ -1,0 +1,9 @@
+best_accuracy: 75.95
+dataset: cifar10
+epochs: 50
+final_accuracy: 72.26
+model: resnet18
+optimizer: lion
+parameters: 11181642
+seed: 456
+total_time: 258.45954942703247

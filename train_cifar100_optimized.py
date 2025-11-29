@@ -138,7 +138,8 @@ def main(args):
         batch_size=args.batch_size,
         num_workers=args.workers,
         augmentation=args.augmentation,
-        pin_memory=(device.type == 'cuda')
+        pin_memory=(device.type == 'cuda'),
+        data_fraction=getattr(args, 'data_fraction', 1.0)
     )
     print(f"Train batches: {len(train_loader)}, Test batches: {len(test_loader)}")
     
@@ -326,6 +327,8 @@ if __name__ == '__main__':
                         help='Label smoothing (default: 0.1)')
     parser.add_argument('--grad-clip', type=float, default=0,
                         help='Gradient clipping (0 = disabled)')
+    parser.add_argument('--data-fraction', type=float, default=1.0,
+                        help='Fraction of training data to use (0.0-1.0, for limited data experiments)')
     
     # Output arguments
     parser.add_argument('--save-dir', type=str, default='./results_cifar100',

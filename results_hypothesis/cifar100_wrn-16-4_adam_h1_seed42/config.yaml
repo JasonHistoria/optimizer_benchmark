@@ -1,0 +1,16 @@
+augmentation: strong
+batch_size: 128
+data_fraction: 1.0
+early_stop: 0
+epochs: 100
+exp_suffix: _h1
+grad_clip: 0
+label_smoothing: 0.1
+lr: 0.001
+model: wrn-16-4
+optimizer: adam
+save_dir: ./results_hypothesis
+scheduler: cosine
+seed: 42
+weight_decay: 0.0
+workers: 4

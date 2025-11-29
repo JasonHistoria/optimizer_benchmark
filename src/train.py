@@ -129,11 +129,19 @@ def main(args):
     
     # Create optimizer
     print(f"\nCreating {args.optimizer.upper()} optimizer...")
+    # Get optimizer with optional betas parameter (for Lion)
+    optimizer_kwargs = {
+        'lr': args.lr,
+        'weight_decay': args.weight_decay
+    }
+    # For Lion, ensure betas=(0.9, 0.99) is used (default in optimizers.py)
+    if args.optimizer == 'lion':
+        optimizer_kwargs['betas'] = (0.9, 0.99)
+    
     optimizer = get_optimizer(
         args.optimizer,
         model,
-        lr=args.lr,
-        weight_decay=args.weight_decay
+        **optimizer_kwargs
     )
     print(f"Learning rate: {args.lr}, Weight decay: {args.weight_decay}")
     

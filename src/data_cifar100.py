@@ -119,7 +119,7 @@ def get_cifar100_transforms(augmentation_level='strong'):
 
 
 def get_cifar100_loaders(batch_size=128, num_workers=4, augmentation='strong', 
-                         pin_memory=True, validation_split=0.0):
+                         pin_memory=True, validation_split=0.0, data_fraction=1.0):
     """
     Get CIFAR-100 data loaders with optimized settings.
     
@@ -129,6 +129,7 @@ def get_cifar100_loaders(batch_size=128, num_workers=4, augmentation='strong',
         augmentation: 'basic', 'medium', or 'strong'
         pin_memory: Pin memory for faster GPU transfer
         validation_split: Fraction of training data for validation (0.0-0.2)
+        data_fraction: Fraction of training data to use (0.0-1.0, for limited data experiments)
     
     Returns:
         train_loader, test_loader, (val_loader if validation_split > 0)
@@ -142,6 +143,16 @@ def get_cifar100_loaders(batch_size=128, num_workers=4, augmentation='strong',
     test_dataset = torchvision.datasets.CIFAR100(
         root='./data', train=False, download=True, transform=test_transform
     )
+    
+    # Use subset of data if specified (for limited data experiments)
+    if data_fraction < 1.0:
+        n_samples = len(train_dataset)
+        n_subset = int(data_fraction * n_samples)
+        # Use fixed seed for reproducibility (can be made configurable if needed)
+        generator = torch.Generator().manual_seed(42)
+        indices = torch.randperm(n_samples, generator=generator)[:n_subset]
+        train_dataset = torch.utils.data.Subset(train_dataset, indices)
+        print(f"Using {data_fraction*100:.1f}% of training data ({n_subset}/{n_samples} samples)")
     
     # Optional validation split
     if validation_split > 0:

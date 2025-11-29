@@ -1,0 +1,16 @@
+augmentation: strong
+batch_size: 128
+data_fraction: 0.2
+early_stop: 0
+epochs: 50
+exp_suffix: _h4_data20pct
+grad_clip: 0
+label_smoothing: 0.1
+lr: 0.001
+model: wrn-16-4
+optimizer: muon
+save_dir: ./results_hypothesis
+scheduler: cosine
+seed: 456
+weight_decay: 0.01
+workers: 4
