@@ -8,7 +8,7 @@
 
 This repository hosts a comprehensive empirical benchmark of six optimization algorithms—SGD with Momentum, Adam, AdamW, RAdam, Lion, and Muon—on CIFAR-10 and CIFAR-100. Our goal is to evaluate convergence efficiency, final accuracy, stability, and theory-practice gaps under a unified, fair experimental protocol.
 
-🔗 **Key Deliverables:** [Final Report (PDF)](Report/final_report_v1.pdf)
+🔗 **Key Deliverables:** [Final Report (PDF)](Report/CSE_493s_Final_Report.pdf)
 
 ---
 
