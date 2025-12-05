@@ -37,6 +37,7 @@ data/
 
 # Results and logs
 logs/
+Presentation/
 runs/
 checkpoints/
 

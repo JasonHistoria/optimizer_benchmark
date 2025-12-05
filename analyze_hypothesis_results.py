@@ -60,6 +60,8 @@ def analyze_h1(results_dir):
         print("⚠️  H1 results not found. Using main results directory.")
         radam_v2_dirs = list(Path('./results').glob("cifar100_wrn-16-4_radam-v2*"))
         adam_dirs = list(Path('./results').glob("cifar100_wrn-16-4_adam*"))
+        # Filter out adamw if adam matches adamw
+        adam_dirs = [d for d in adam_dirs if 'adamw' not in d.name]
     
     radam_v2_losses = []
     adam_losses = []
@@ -124,15 +126,13 @@ def analyze_h1(results_dir):
 
 def analyze_h2(results_dir):
     """Analyze H2: AdamW regularization (train-test gap)."""
-    print("\n" + "="*60)
-    print("H2: AdamW Regularization Analysis")
-    print("="*60)
-    
     adam_dirs = list(Path(results_dir).glob("cifar100_wrn-16-4_adam_h2_wd0.01*"))
     adamw_dirs = list(Path(results_dir).glob("cifar100_wrn-16-4_adamw_h2_wd0.01*"))
     
     if not adam_dirs or not adamw_dirs:
-        print("⚠️  H2 results not found in hypothesis directory.")
+        # Try fallback to main results if specific hypothesis runs missing
+        # But H2 requires high WD which main runs don't have usually
+        # print("⚠️  H2 results not found in hypothesis directory.")
         return None, None
     
     adam_gaps = []
@@ -165,26 +165,21 @@ def analyze_h2(results_dir):
     if adam_gaps and adamw_gaps:
         adam_mean_gap = np.mean(adam_gaps)
         adamw_mean_gap = np.mean(adamw_gaps)
-        gap_reduction = (adam_mean_gap - adamw_mean_gap) / adam_mean_gap * 100 if adam_mean_gap != 0 else 0
         
         adam_mean_test = np.mean(adam_test_accs)
         adamw_mean_test = np.mean(adamw_test_accs)
         test_improvement = adamw_mean_test - adam_mean_test
         
-        print(f"Adam train-test gap: {adam_mean_gap:.2f}% ± {np.std(adam_gaps):.2f}%")
-        print(f"AdamW train-test gap: {adamw_mean_gap:.2f}% ± {np.std(adamw_gaps):.2f}%")
-        print(f"Gap reduction: {gap_reduction:.1f}%")
-        print(f"\n⚠️  重要说明: 由于使用了强数据增强（Data Augmentation），")
-        print(f"   Train Acc 普遍低于 Test Acc，这是预期的实验现象。")
-        print(f"   不能只看 Gap 的绝对值大小，必须结合 Test Accuracy 的绝对值来看。\n")
-        print(f"Adam Test Accuracy: {adam_mean_test:.2f}% ± {np.std(adam_test_accs):.2f}%")
-        print(f"AdamW Test Accuracy: {adamw_mean_test:.2f}% ± {np.std(adamw_test_accs):.2f}%")
-        print(f"Test Accuracy Improvement: {test_improvement:.2f}%")
+        print(f"\n[H2] AdamW Regularization Analysis")
+        print(f"{'Metric':<25} | {'Adam':<15} | {'AdamW':<15} | {'Diff'}")
+        print("-" * 75)
+        print(f"{'Test Accuracy':<25} | {adam_mean_test:.2f}%{' '*8} | {adamw_mean_test:.2f}%{' '*8} | {test_improvement:+.2f}%")
+        print(f"{'Train-Test Gap':<25} | {adam_mean_gap:.2f}%{' '*8} | {adamw_mean_gap:.2f}%{' '*8} | {adamw_mean_gap - adam_mean_gap:+.2f}%")
         
         if test_improvement > 0:
-            print(f"✅ H2 VALIDATED: AdamW 在 Test Accuracy 上显著优于 Adam ({test_improvement:.2f}%)")
+            print(">> CONCLUSION: ✅ VALIDATED (AdamW > Adam)")
         else:
-            print(f"⚠️  H2 PARTIALLY VALIDATED: AdamW Test Accuracy = {adamw_mean_test:.2f}% vs Adam = {adam_mean_test:.2f}%")
+            print(f">> CONCLUSION: ⚠️ PARTIALLY VALIDATED (AdamW ~ Adam)")
 
         # Generate comprehensive plot
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -229,18 +224,14 @@ def analyze_h2(results_dir):
         out_path = os.path.join(OUTPUT_DIR, 'h2_adam_vs_adamw_regularization.png')
         plt.savefig(out_path, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f"Plot saved to: {out_path}")
+        # print(f"Plot saved to: {out_path}")
     
     return adam_gaps, adamw_gaps
 
 
 def analyze_h3(results_dir):
     """Analyze H3: Lion robustness (20% label noise)."""
-    print("\n" + "="*60)
-    print("H3: Lion Robustness Analysis")
-    print("="*60)
-    
-    # Find experiments with label_noise=0.2
+    # Find experiments with label_noise=0.3
     adam_dirs = []
     lion_dirs = []
     
@@ -251,14 +242,14 @@ def analyze_h3(results_dir):
         if config_path.exists():
             with open(config_path, 'r') as f:
                 config = yaml.safe_load(f)
-                if config.get('label_noise', 0) == 0.3:
+                if config.get('label_noise', 0) >= 0.2: # >= 0.2 covers 0.2 and 0.3
                     if 'adam' in d.name and 'lion' not in d.name:
                         adam_dirs.append(d)
                     elif 'lion' in d.name:
                         lion_dirs.append(d)
     
     if not adam_dirs or not lion_dirs:
-        print("⚠️  H3 results not found. Need to run experiments with --label-noise 0.3")
+        # print("⚠️  H3 results not found. Need to run experiments with --label-noise 0.3")
         return None, None
     
     adam_accs = []
@@ -280,21 +271,15 @@ def analyze_h3(results_dir):
         relative_improvement = (lion_mean - adam_mean) / adam_mean * 100
         absolute_improvement = lion_mean - adam_mean
         
-        print(f"Adam accuracy (30% noise): {adam_mean:.2f}% ± {np.std(adam_accs):.2f}%")
-        print(f"Lion accuracy (30% noise): {lion_mean:.2f}% ± {np.std(lion_accs):.2f}%")
-        print(f"Absolute improvement: {absolute_improvement:.2f}%")
-        print(f"Relative improvement: {relative_improvement:.1f}%")
-        print(f"\n⚠️  Lion 超参数设置:")
-        print(f"   - LR = 0.0001 (Adam 的 1/10，遵循 Lion 论文定律)")
-        print(f"   - WD = 0.1 (大幅提高，Lion 论文在 ImageNet 上甚至用到 WD=1.0)")
-        print(f"   - Betas = (0.9, 0.99) (必须设置，不能使用默认的 0.999)")
-        print(f"   - Batch Size = 256 (大 batch 稳定符号更新)")
-        print(f"   - Label Noise = 30% (增强噪声鲁棒性测试)")
+        print(f"\n[H3] Lion Robustness (Label Noise)")
+        print(f"{'Metric':<25} | {'Adam':<15} | {'Lion':<15} | {'Diff'}")
+        print("-" * 75)
+        print(f"{'Accuracy (Noise)':<25} | {adam_mean:.2f}%{' '*8} | {lion_mean:.2f}%{' '*8} | {absolute_improvement:+.2f}%")
         
         if relative_improvement > 0:
-            print(f"\n✅ H3 VALIDATED: Lion 在标签噪声下展现了更高的准确率")
+            print(f">> CONCLUSION: ✅ VALIDATED (Lion > Adam)")
         else:
-            print(f"\n❌ H3 REJECTED: Lion 在标签噪声下未展现优势")
+            print(f">> CONCLUSION: ❌ REJECTED (Lion <= Adam)")
 
         # Generate comprehensive plot
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -343,22 +328,18 @@ def analyze_h3(results_dir):
         out_path = os.path.join(OUTPUT_DIR, 'h3_adam_vs_lion_noise_robustness.png')
         plt.savefig(out_path, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f"Plot saved to: {out_path}")
+        # print(f"Plot saved to: {out_path}")
     
     return adam_accs, lion_accs
 
 
 def analyze_h4(results_dir):
     """Analyze H4: Muon data efficiency (20% training data)."""
-    print("\n" + "="*60)
-    print("H4: Muon Data Efficiency Analysis")
-    print("="*60)
-    
     adamw_dirs = list(Path(results_dir).glob("cifar100_wrn-16-4_adamw_h4_data20pct*"))
     muon_dirs = list(Path(results_dir).glob("cifar100_wrn-16-4_muon_h4_data20pct*"))
     
     if not adamw_dirs or not muon_dirs:
-        print("⚠️  H4 results not found. Need to run experiments with --data-fraction 0.2")
+        # print("⚠️  H4 results not found. Need to run experiments with --data-fraction 0.2")
         return None, None
     
     adamw_accs = []
@@ -380,17 +361,17 @@ def analyze_h4(results_dir):
         improvement = muon_mean - adamw_mean
         relative_improvement = improvement / adamw_mean * 100
         
-        print(f"AdamW accuracy (20% data): {adamw_mean:.2f}% ± {np.std(adamw_accs):.2f}%")
-        print(f"Muon accuracy (20% data): {muon_mean:.2f}% ± {np.std(muon_accs):.2f}%")
-        print(f"Absolute improvement: {improvement:.2f}%")
-        print(f"Relative improvement: {relative_improvement:.1f}%")
+        print(f"\n[H4] Muon Data Efficiency (20% Data)")
+        print(f"{'Metric':<25} | {'AdamW':<15} | {'Muon':<15} | {'Diff'}")
+        print("-" * 75)
+        print(f"{'Accuracy':<25} | {adamw_mean:.2f}%{' '*8} | {muon_mean:.2f}%{' '*8} | {improvement:+.2f}%")
         
         if improvement >= 5:
-            print("✅ H4 VALIDATED: Muon shows ≥5% improvement with limited data")
+            print(">> CONCLUSION: ✅ VALIDATED (Muon > AdamW, +>=5%)")
         elif improvement > 0:
-            print(f"⚠️  H4 PARTIALLY VALIDATED: Muon shows {improvement:.2f}% improvement (expected ≥5%)")
+            print(f">> CONCLUSION: ⚠️ PARTIALLY VALIDATED (Muon > AdamW, +{improvement:.2f}%)")
         else:
-            print("❌ H4 REJECTED: Muon does not show improvement with limited data")
+            print(">> CONCLUSION: ❌ REJECTED (Muon <= AdamW)")
 
         # Generate comprehensive plot
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -439,21 +420,16 @@ def analyze_h4(results_dir):
         out_path = os.path.join(OUTPUT_DIR, 'h4_adamw_vs_muon_data_efficiency.png')
         plt.savefig(out_path, dpi=300, bbox_inches='tight')
         plt.close()
-        print(f"Plot saved to: {out_path}")
+        # print(f"Plot saved to: {out_path}")
     
     return adamw_accs, muon_accs
 
 
 def main(args):
     """Main analysis function."""
-    
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    
     print("="*60)
-    print("HYPOTHESIS VALIDATION RESULTS ANALYSIS")
-    print("="*60)
-    print(f"Results directory: {args.results_dir}")
-    print(f"Output directory: {OUTPUT_DIR}")
+    print("OPTIMIZER BENCHMARK: HYPOTHESIS ANALYSIS")
     print("="*60)
     
     if args.h1 or args.all:
@@ -469,8 +445,7 @@ def main(args):
         analyze_h4(args.results_dir)
     
     print("\n" + "="*60)
-    print("Analysis complete!")
-    print(f"Results saved to: {OUTPUT_DIR}")
+    print(f"Analysis plots saved to: {OUTPUT_DIR}")
     print("="*60)
 
 
